@@ -15,7 +15,7 @@ const List = ({
   return (
     <S.Container>
       <S.Title>
-        <p>Patrocinadores</p>
+        Patrocinadores
         <p className="subtitle">
           Gerencie com eficiência os patrocinadores que apoiam sua organização
           através desta interface intuitiva de CRUD. Aqui, você pode cadastrar

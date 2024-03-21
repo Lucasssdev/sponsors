@@ -1,5 +1,6 @@
 import React from "react";
 import * as S from "../../styles/components/Header";
+import InputSearch from "../InputSearch";
 
 export default function Header({
   onClickButton,
@@ -9,8 +10,7 @@ export default function Header({
   return (
     <S.Container>
       <S.Logo>Eng. de Software</S.Logo>
-      <input
-        type="text"
+      <InputSearch
         value={searchTerm}
         onChange={handleSearchChange}
         placeholder="Buscar patrocinador..."

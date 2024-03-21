@@ -10,12 +10,13 @@ export const Container = styled.div`
   align-items: center;
   justify-content: space-between;
   padding: 15px;
-  transition-duration: 500ms;
+  transition-duration: 300ms;
   list-style: none;
   transform: scale(1);
 
   &:hover {
     transform: scale(1.01);
+    background-color: #17171a;
   }
 `;
 

@@ -22,7 +22,7 @@ function App() {
 
   const handleListSearch = () => {
     const filteredSponsors = sponsorsByApi.filter((sponsor) =>
-      sponsor.name.toLowerCase().includes(searchTerm.toLowerCase())
+      sponsor.name.toLowerCase().startsWith(searchTerm.toLowerCase())
     );
     setFilteredSponsors(filteredSponsors);
     console.log(filteredSponsors);
@@ -40,8 +40,8 @@ function App() {
   const [updatedSponsor, setupdatedSponsor] = useState({});
 
   useEffect(() => {
-    console.log(sponsorsByApi);
-  }, [sponsorsByApi]);
+    console.log(updatedSponsor);
+  }, [updatedSponsor]);
 
   useEffect(() => {
     getSponsorsInApi();
@@ -63,14 +63,14 @@ function App() {
     console.log(searchTerm);
     handleListSearch();
   }, [searchTerm]);
-  const onCHangeCrete = (e) => {
+  const onChangeCreate = (e) => {
     const { id, value } = e.target;
     setNewSponsor({
       ...newSponsor,
       [id]: value,
     });
   };
-  const onCHangeUpdate = (e) => {
+  const onChangeUpdate = (e) => {
     const { id, value } = e.target;
     setupdatedSponsor({
       ...updatedSponsor,
@@ -101,7 +101,7 @@ function App() {
       });
   };
   const submitUpadteSponsor = async () => {
-    const { id, ...rest } = updatedSponsor;
+    const { id, updatedAt, ...rest } = updatedSponsor;
     console.log("submit", id, rest);
     await axios
       .patch(`${process.env.REACT_APP_API_URL}/update/${id}`, rest)
@@ -143,10 +143,11 @@ function App() {
         handleUpdatedSponsor={handleUpdatedSponsor}
         handleDeleteSponsor={handleDeleteSponsor}
       />
+      <Footer />
       {showPoupUpCreate && (
         <PoupUp
           sponsor={newSponsor}
-          onChange={(e) => onCHangeCrete(e)}
+          onChange={(e) => onChangeCreate(e)}
           handleSubmit={submitCreateSponsor}
           ctaButton="Criar"
           handleClose={() => {
@@ -158,7 +159,7 @@ function App() {
       {showPoupUpUpdate && (
         <PoupUp
           sponsor={updatedSponsor}
-          onChange={(e) => onCHangeUpdate(e)}
+          onChange={(e) => onChangeUpdate(e)}
           handleSubmit={submitUpadteSponsor}
           ctaButton="Atualizar"
           handleClose={() => setShowPoupUpUpdate(false)}

@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
 export const Container = styled.div`
-  background-color: #2E2E32;
+  background-color: #2e2e32;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -19,7 +19,7 @@ export const Logo = styled.div`
 `;
 
 export const Button = styled.div`
-  background-color:  #1763F8;
+  background-color: #1763f8;
   text-align: center;
   display: flex;
   align-items: center;
@@ -32,8 +32,7 @@ export const Button = styled.div`
   font-size: 16px;
   font-weight: 700;
   text-transform: uppercase;
-  &:hover{
+  &:hover {
     background-color: #1150cc;
   }
-`
-
+`;

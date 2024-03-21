@@ -18,7 +18,7 @@ const InputText = ({ placeholder, onChange, value, id }) => {
         htmlFor="input"
         className={inFocus || realValue ? "inFocus" : ""}
       >
-        {placeholder}{" "}
+        {placeholder}
       </S.Label>
       <S.Underline className={inFocus || realValue ? "inFocus" : ""} />
     </S.InputContainer>
