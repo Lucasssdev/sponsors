@@ -143,6 +143,7 @@ function App() {
         handleUpdatedSponsor={handleUpdatedSponsor}
         handleDeleteSponsor={handleDeleteSponsor}
       />
+      {/*       <Footer /> */}
       {showPoupUpCreate && (
         <PoupUp
           sponsor={newSponsor}
