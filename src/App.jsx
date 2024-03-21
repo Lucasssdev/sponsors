@@ -1,5 +1,3 @@
-// App.js
-
 import React, { useState, useEffect } from "react";
 import Footer from "./components/Footer";
 import Header from "./components/Header";
@@ -10,48 +8,59 @@ import axios from "axios";
 import "./App.css";
 
 function App() {
+  // Define estado para controlar a exibição do popup de criação de patrocinador
   const [showPoupUpCreate, setShowPoupUpCreate] = useState(false);
+
+  // Define estado para controlar a exibição do popup de atualização de patrocinador
   const [showPoupUpUpdate, setShowPoupUpUpdate] = useState(false);
+
+  // Define estado para armazenar o termo de pesquisa
   const [searchTerm, setSearchTerm] = useState("");
+
+  // Define estado para armazenar os patrocinadores recebidos da API
   const [sponsorsByApi, setSponsorsByApi] = useState([]);
+
+  // Define estado para armazenar os patrocinadores filtrados com base no termo de pesquisa
   const [filteredSponsors, setFilteredSponsors] = useState([]);
 
-  const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
-  };
-
-  const handleListSearch = () => {
-    const filteredSponsors = sponsorsByApi.filter((sponsor) =>
-      sponsor.name.toLowerCase().startsWith(searchTerm.toLowerCase())
-    );
-    setFilteredSponsors(filteredSponsors);
-    console.log(filteredSponsors);
-    //return filteredSponsors;
-  };
-  console.log(filteredSponsors);
+  // Define estado para armazenar os detalhes do novo patrocinador a ser criado
   const [newSponsor, setNewSponsor] = useState({
     name: "",
     cnpj: "",
     description: "",
   });
-  useEffect(() => {
-    console.log(newSponsor);
-  }, [newSponsor]);
+
+  // Define estado para armazenar os detalhes do patrocinador a ser atualizado
   const [updatedSponsor, setupdatedSponsor] = useState({});
 
-  useEffect(() => {
-    console.log(updatedSponsor);
-  }, [updatedSponsor]);
-
+  // Efeito para buscar os patrocinadores da API ao montar o componente
   useEffect(() => {
     getSponsorsInApi();
   }, []);
 
+  // Efeito para filtrar os patrocinadores com base no termo de pesquisa
+  useEffect(() => {
+    handleListSearch();
+  }, [searchTerm]);
+
+  // Função para lidar com a mudança no campo de pesquisa
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
+  // Função para filtrar os patrocinadores com base no termo de pesquisa
+  const handleListSearch = () => {
+    const filteredSponsors = sponsorsByApi.filter((sponsor) =>
+      sponsor.name.toLowerCase().startsWith(searchTerm.toLowerCase())
+    );
+    setFilteredSponsors(filteredSponsors);
+  };
+
+  // Função para buscar os patrocinadores da API
   const getSponsorsInApi = async () => {
     await axios
       .get(`${process.env.REACT_APP_API_URL}/all`)
       .then((response) => {
-        console.log(response);
         setSponsorsByApi(response.data);
       })
       .catch((error) => {
@@ -59,10 +68,7 @@ function App() {
       });
   };
 
-  useEffect(() => {
-    console.log(searchTerm);
-    handleListSearch();
-  }, [searchTerm]);
+  // Função para atualizar o estado do novo patrocinador ao digitar nos campos de criação
   const onChangeCreate = (e) => {
     const { id, value } = e.target;
     setNewSponsor({
@@ -70,6 +76,8 @@ function App() {
       [id]: value,
     });
   };
+
+  // Função para atualizar o estado do patrocinador a ser atualizado ao digitar nos campos de atualização
   const onChangeUpdate = (e) => {
     const { id, value } = e.target;
     setupdatedSponsor({
@@ -77,21 +85,19 @@ function App() {
       [id]: value,
     });
   };
+
+  // Função para lidar com a atualização de um patrocinador
   const handleUpdatedSponsor = (sponsor) => {
-    console.log("1aqui", sponsor);
     setupdatedSponsor(sponsor);
     showPoupUpCreate && setShowPoupUpCreate(false);
     setShowPoupUpUpdate(true);
   };
 
+  // Função para submeter a criação de um novo patrocinador
   const submitCreateSponsor = async () => {
-    //setSponsorsByApi([...sponsorsByApi, newSponsor]);
-    console.log("aui");
     await axios
       .post(`${process.env.REACT_APP_API_URL}/create`, newSponsor)
       .then(async (res) => {
-        console.log(res);
-
         await getSponsorsInApi();
         setShowPoupUpCreate(false);
         setNewSponsor({ name: "", cnpj: "", description: "" });
@@ -100,13 +106,13 @@ function App() {
         console.log(error);
       });
   };
+
+  // Função para submeter a atualização de um patrocinador existente
   const submitUpadteSponsor = async () => {
     const { id, updatedAt, ...rest } = updatedSponsor;
-    console.log("submit", id, rest);
     await axios
       .patch(`${process.env.REACT_APP_API_URL}/update/${id}`, rest)
       .then(async (res) => {
-        console.log(res);
         await getSponsorsInApi();
         setShowPoupUpUpdate(false);
         setupdatedSponsor({});
@@ -116,20 +122,18 @@ function App() {
       });
   };
 
+  // Função para lidar com a exclusão de um patrocinador
   const handleDeleteSponsor = async (sponsorId) => {
-    console.log("entrou", sponsorId);
     await axios
       .delete(`${process.env.REACT_APP_API_URL}/${sponsorId}`)
       .then(async (res) => {
-        console.log(res);
         await getSponsorsInApi();
-        setShowPoupUpUpdate(false);
-        setupdatedSponsor({});
       })
       .catch((error) => {
         console.log(error);
       });
   };
+
   return (
     <S.Container>
       <Header
