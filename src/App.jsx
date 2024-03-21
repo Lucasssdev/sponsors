@@ -1,45 +1,47 @@
-import "./App.css";
-import React, { useEffect } from "react";
+// App.js
+
+import React, { useState, useEffect } from "react";
+import Footer from "./components/Footer";
+import Header from "./components/Header";
+import * as S from "./styles/globalCss";
 import PoupUp from "./components/PoupUp";
-import { useState } from "react";
 import List from "./components/List";
 import axios from "axios";
+import "./App.css";
+
 function App() {
   const [showPoupUpCreate, setShowPoupUpCreate] = useState(false);
   const [showPoupUpUpdate, setShowPoupUpUpdate] = useState(false);
-  const [sponsorsByApi, setSponsorsByApi] = useState([
-    {
-      _id: Math.random(),
-      name: "teste1",
-      cnpj: "123",
-      description: " O que ue gosto de fazer",
-    },
-    {
-      _id: Math.random(),
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sponsorsByApi, setSponsorsByApi] = useState([]);
+  const [filteredSponsors, setFilteredSponsors] = useState([]);
 
-      name: "teste2",
-      cnpj: "456",
-      description: " Eu AMmo hamburg",
-    },
-    {
-      _id: Math.random(),
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
 
-      name: "teste3",
-      cnpj: "789",
-      description: " Outra coisa",
-    },
-  ]);
-
+  const handleListSearch = () => {
+    const filteredSponsors = sponsorsByApi.filter((sponsor) =>
+      sponsor.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredSponsors(filteredSponsors);
+    console.log(filteredSponsors);
+    //return filteredSponsors;
+  };
+  console.log(filteredSponsors);
   const [newSponsor, setNewSponsor] = useState({
     name: "",
     cnpj: "",
     description: "",
   });
+  useEffect(() => {
+    console.log(newSponsor);
+  }, [newSponsor]);
   const [updatedSponsor, setupdatedSponsor] = useState({});
 
   useEffect(() => {
-    console.log(updatedSponsor);
-  }, [updatedSponsor]);
+    console.log(sponsorsByApi);
+  }, [sponsorsByApi]);
 
   useEffect(() => {
     getSponsorsInApi();
@@ -47,7 +49,7 @@ function App() {
 
   const getSponsorsInApi = async () => {
     await axios
-      .get("http://localhost:3000/sponsors")
+      .get(`${process.env.REACT_APP_API_URL}/all`)
       .then((response) => {
         console.log(response);
         setSponsorsByApi(response.data);
@@ -57,6 +59,10 @@ function App() {
       });
   };
 
+  useEffect(() => {
+    console.log(searchTerm);
+    handleListSearch();
+  }, [searchTerm]);
   const onCHangeCrete = (e) => {
     const { id, value } = e.target;
     setNewSponsor({
@@ -67,7 +73,7 @@ function App() {
   const onCHangeUpdate = (e) => {
     const { id, value } = e.target;
     setupdatedSponsor({
-      ...newSponsor,
+      ...updatedSponsor,
       [id]: value,
     });
   };
@@ -79,46 +85,74 @@ function App() {
   };
 
   const submitCreateSponsor = async () => {
-    setSponsorsByApi([...sponsorsByApi, newSponsor]);
+    //setSponsorsByApi([...sponsorsByApi, newSponsor]);
+    console.log("aui");
     await axios
-      .post("http://localhost:3000/sponsors", newSponsor)
-      .then(() => {
-        getSponsorsInApi();
+      .post(`${process.env.REACT_APP_API_URL}/create`, newSponsor)
+      .then(async (res) => {
+        console.log(res);
+
+        await getSponsorsInApi();
+        setShowPoupUpCreate(false);
+        setNewSponsor({ name: "", cnpj: "", description: "" });
       })
       .catch((error) => {
         console.log(error);
       });
   };
   const submitUpadteSponsor = async () => {
-    const { _id, ...rest } = updatedSponsor;
-    console.log("submit", _id, rest);
+    const { id, ...rest } = updatedSponsor;
+    console.log("submit", id, rest);
     await axios
-      .patch(`localhost:3000/sponsors/${_id}`, rest)
-      .then(() => {
-        getSponsorsInApi();
+      .patch(`${process.env.REACT_APP_API_URL}/update/${id}`, rest)
+      .then(async (res) => {
+        console.log(res);
+        await getSponsorsInApi();
+        setShowPoupUpUpdate(false);
+        setupdatedSponsor({});
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
+  const handleDeleteSponsor = async (sponsorId) => {
+    console.log("entrou", sponsorId);
+    await axios
+      .delete(`${process.env.REACT_APP_API_URL}/${sponsorId}`)
+      .then(async (res) => {
+        console.log(res);
+        await getSponsorsInApi();
+        setShowPoupUpUpdate(false);
+        setupdatedSponsor({});
       })
       .catch((error) => {
         console.log(error);
       });
   };
   return (
-    <div className="App">
-      <header>
-        <h1>Sponsors</h1>
-        <button onClick={() => setShowPoupUpCreate(!showPoupUpCreate)}>
-          Create
-        </button>
-        <button onClick={() => setShowPoupUpUpdate(!showPoupUpUpdate)}>
-          Update
-        </button>
-      </header>
+    <S.Container>
+      <Header
+        onClickButton={() => setShowPoupUpCreate(!showPoupUpCreate)}
+        handleSearchChange={handleSearchChange}
+        searchTerm={searchTerm}
+      />
+      <List
+        sponsorsByApi={sponsorsByApi}
+        filteredSponsors={filteredSponsors}
+        handleUpdatedSponsor={handleUpdatedSponsor}
+        handleDeleteSponsor={handleDeleteSponsor}
+      />
       {showPoupUpCreate && (
         <PoupUp
           sponsor={newSponsor}
           onChange={(e) => onCHangeCrete(e)}
           handleSubmit={submitCreateSponsor}
           ctaButton="Criar"
-          color="green"
+          handleClose={() => {
+            setShowPoupUpCreate(false);
+            setNewSponsor({ name: "", cnpj: "", description: "" });
+          }}
         />
       )}
       {showPoupUpUpdate && (
@@ -127,14 +161,10 @@ function App() {
           onChange={(e) => onCHangeUpdate(e)}
           handleSubmit={submitUpadteSponsor}
           ctaButton="Atualizar"
+          handleClose={() => setShowPoupUpUpdate(false)}
         />
       )}
-
-      <List
-        sponsorsByApi={sponsorsByApi}
-        handleUpdatedSponsor={handleUpdatedSponsor}
-      />
-    </div>
+    </S.Container>
   );
 }
 
